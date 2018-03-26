@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics.pairwise import pairwise_distances
 
+
 def kMedoids(D, k, tmax=100):
     # determine dimensions of distance matrix D
     m, n = D.shape
@@ -64,6 +65,7 @@ def kMedoids(D, k, tmax=100):
     return M,C
  
 
+
 user_artists = pd.read_csv("G:/BITS/4-2/Information retrieval/my_assignment/last_fm_dataset/user_artists.csv")
 m = pd.pivot_table(user_artists, values='weight',index='userID',columns='artistID')
 m = m.fillna(0)
@@ -74,3 +76,35 @@ for label in C:
     for point_idx in C[label]:
         print('label {0}:　{1}'.format(label, point_idx))
 
+#testing clusters
+#for i in range(C[0].size):
+#    print(C[0][i])
+
+ua_list = user_artists.groupby('userID')['artistID'].apply(list)
+
+#ua_list.values[0] #userID starts at 2, so 0->2,1->3 and so on.
+
+def intersection(lst1, lst2):
+    lst3 = [value for value in lst1 if value in lst2]
+    return lst3
+
+def num_common(p, q): #put actual userID
+    return len(intersection(ua_list.values[p-2],ua_list.values[q-2]))
+
+#print(num_common(2,4))
+
+def euclideanDistance(user1, user2): #put actual userID
+	return D[user1 - 2][user2 - 2]
+
+#print(euclideanDistance(2,4))
+
+def getClusterLabel(user):
+    for i in range(len(C)):
+        if(user in C[i]):
+            return i
+    return -1
+
+#print(getClusterLabel(5))
+
+def recommend_artists(user):
+    

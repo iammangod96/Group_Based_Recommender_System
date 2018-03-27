@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.metrics.pairwise import pairwise_distances
-
+import operator
 
 def kMedoids(D, k, tmax=100):
     # determine dimensions of distance matrix D
@@ -98,7 +98,7 @@ def euclideanDistance(user1, user2): #put actual userID
 
 #print(euclideanDistance(2,4))
 
-def getClusterLabel(user):
+def getClusterLabel(user): #put actual userID
     for i in range(len(C)):
         if(user in C[i]):
             return i
@@ -106,5 +106,31 @@ def getClusterLabel(user):
 
 #print(getClusterLabel(5))
 
+num_users = m.shape[0]
+num_artists = m.shape[1]
+#print(num_artists)
+
 def recommend_artists(user):
+    cluster = getClusterLabel(user)
+    cluster_size = C[cluster].size
+    scores = [] #score for each artist predicted for that user
+    for k in range(0,num_artists):
+        s = 0
+        num_people = 0
+        for p in range(0,cluster_size):
+            if(m[C[cluster][p]][k] != 0):
+                n = num_common(user,C[cluster][p])
+                d = (n/(n+100))*euclideanDistance(user,C[cluster][p])
+                s += d
+                num_people += 1
+        score = s/num_people
+        scores.append((k,score))
+    scores.sort(key=operator.itemgetter(1),reverse = True)
+    #rec = []
+    for i in range(0,5):
+        print(scores[i][0])
+        #rec.append(scores[i][0])
+    
+        
+recommend_artists(3)
     

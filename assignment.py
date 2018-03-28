@@ -118,12 +118,16 @@ def recommend_artists(user):
         s = 0
         num_people = 0
         for p in range(0,cluster_size):
-            if(m[C[cluster][p]][k] != 0):
+            #if(m[C[cluster][p]][k] != 0):
+            if(m.iloc[C[cluster][p]-2,k-1] > 0):
                 n = num_common(user,C[cluster][p])
                 d = (n/(n+100))*euclideanDistance(user,C[cluster][p])
                 s += d
                 num_people += 1
-        score = s/num_people
+        if(num_people == 0):
+            score=0
+        else:
+            score = s/num_people
         scores.append((k,score))
     scores.sort(key=operator.itemgetter(1),reverse = True)
     #rec = []
@@ -132,5 +136,29 @@ def recommend_artists(user):
         #rec.append(scores[i][0])
     
         
-recommend_artists(3)
-    
+recommend_artists(5)
+#
+#if(-3):
+#    print("manish")
+#
+##debugging
+#cluster = getClusterLabel(72)
+#cluster_size = C[cluster].size
+#scores = [] #score for each artist predicted for that user
+#for k in range(0,num_artists):
+#    s = 0
+#    num_people = 0
+#    for p in range(0,cluster_size):
+#        #if(m[C[cluster][p]][k] != 0):
+#        s+=C[cluster][p];
+#print("manish done")
+#print(s)
+#for i in range(0,10):
+#    print(i)
+#    
+#print(m.iloc[7,7]) #another eureka
+#llr = list(m.index)
+#llc = list(m)
+#m.columns
+#m.rows
+#print(user_artists.iloc[0,1]) #eureka

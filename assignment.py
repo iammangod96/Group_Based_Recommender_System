@@ -189,19 +189,22 @@ def recommend_artists(user): #put userID from 0 to 1891
             score = s/num_people
         scores.append((getArtist(k),score))
     scores.sort(key=operator.itemgetter(1),reverse = True)
-    #rec = []
+    return scores
+
+def recommend_artists_print(scores):
     for i in range(0,50):
         print(scores[i][0]," ,score:",scores[i][1])
-        #rec.append(scores[i][0])
+        
 
 print ("Setup complete in ", time.time() - start_time, "time")
-
+#takes around 20 seconds
 
 #---------------------  recommendation ----------------------------
 
-req_user = 1124
+req_user = 10
 start_time = time.time()
-recommend_artists(req_user)
+recommended_artists_arr = recommend_artists(req_user) 
+recommend_artists_print(recommended_artists_arr)
 print ("Recommendation complete in ", time.time() - start_time, "time")
 #~10 secs - 1 items
 
@@ -217,7 +220,9 @@ for i in range(0,num_artists):
 actual_arr.sort(key=operator.itemgetter(1),reverse = True)
 for i in range(0,50):
         print(actual_arr[i][0]," ,actual weight:",actual_arr[i][1])
-        
+
+print("Number of common:") #there's a problem here, the elements are tupple
+print( len(intersection(recommended_artists_arr,actual_arr)) )
 
 #---------------------  debugging ----------------------------
 #

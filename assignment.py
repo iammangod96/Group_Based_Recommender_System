@@ -167,6 +167,15 @@ num_artists = m.shape[1]
 #print(num_artists)
 #print(num_users)
 
+def evaluate_common(arr1, arr2, n): #used in evaluation
+    arr1_new = [] #only artists from the tuple array (artist + score)
+    arr2_new = [] #only artists from the tuple array (artist + score)
+    for i in range(0,n):
+        arr1_new.append(arr1[i][0])
+    for i in range(0,n):
+        arr2_new.append(arr2[i][0])
+    return intersection(arr1_new,arr2_new)
+
 #---------------------  userKNN ----------------------------
 
 def recommend_artists(user): #put userID from 0 to 1891
@@ -222,7 +231,7 @@ for i in range(0,50):
         print(actual_arr[i][0]," ,actual weight:",actual_arr[i][1])
 
 print("Number of common:") #there's a problem here, the elements are tupple
-print( len(intersection(recommended_artists_arr,actual_arr)) )
+print( evaluate_common(recommended_artists_arr,actual_arr,10) )
 
 #---------------------  debugging ----------------------------
 #

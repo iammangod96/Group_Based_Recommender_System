@@ -2,7 +2,13 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics.pairwise import pairwise_distances
 import operator
+import time
 
+start_time = time.time()
+
+
+
+#---------------------  kmedoids function ----------------------------
 def kMedoids(D, k, tmax=100):
     # determine dimensions of distance matrix D
     m, n = D.shape
@@ -63,13 +69,46 @@ def kMedoids(D, k, tmax=100):
             C[kappa] = np.where(J==kappa)[0]
     # return results
     return M,C
- 
 
+    
+    
+#---------------------  Data profiling ----------------------------
 
+#load data
 user_artists = pd.read_csv("G:/BITS/4-2/Information retrieval/my_assignment/last_fm_dataset/user_artists.csv")
+
+#data profiling
+user_artists.describe()
+#userID
+unique_userID_arr = user_artists.userID.unique()
+unique_userID_arr.sort()
+unique_userID_arr.size #1892
+for i in range(0,100):
+    if(unique_userID_arr[i] != i+2):
+        print("i:",i," / arr[i]:",unique_userID_arr[i])
+#artistID
+unique_artistID_arr = user_artists.artistID.unique()
+unique_artistID_arr.sort()
+unique_artistID_arr.size #17632
+
+#17632 artists rangin from artist ID => 1 to 18745
+#1892 users rangin from user ID => 2 to 2100
+
+
+
+#---------------------  matrix computation ----------------------------
+
 m = pd.pivot_table(user_artists, values='weight',index='userID',columns='artistID')
 m = m.fillna(0)
-D = pairwise_distances(m, metric='euclidean')
+m_index = m.index.values
+m_columns = m.columns.values
+m[8][9] #eureka m[column index][row index]
+
+#---------------------  Clustering ----------------------------
+
+#m = (m - m.min()) / (m.max() - m.min()) #normailizing m puts all in same cluster
+D = pairwise_distances(m, metric='euclidean') #indexing from 0 to 1891
+D_cosine = pairwise_distances(m,metric='cosine')
 M , C= kMedoids(D, 4)
 print('clustering result:')
 for label in C:
@@ -80,25 +119,33 @@ for label in C:
 #for i in range(C[0].size):
 #    print(C[0][i])
 
-ua_list = user_artists.groupby('userID')['artistID'].apply(list)
 
-#ua_list.values[0] #userID starts at 2, so 0->2,1->3 and so on.
+
+#---------------------  fuctions to be used for userKNN ----------------------------
+
+ua_list = user_artists.groupby('userID')['artistID'].apply(list) #indexing 2 to 2100
+
+#ua_list.values[0] #userID starts at 2, so 0->2,1->3 and so on. #<---------- this is wrong
 
 def intersection(lst1, lst2):
     lst3 = [value for value in lst1 if value in lst2]
     return lst3
 
-def num_common(p, q): #put actual userID
-    return len(intersection(ua_list.values[p-2],ua_list.values[q-2]))
+def num_common(p, q): #put userID from 0 to 1891
+    return len(intersection(ua_list.values[p],ua_list.values[q]))
 
-#print(num_common(2,4))
+#ua_list.values[0]
+#print(num_common(0,2))
 
-def euclideanDistance(user1, user2): #put actual userID
-	return D[user1 - 2][user2 - 2]
+def euclideanDistance(user1, user2): #put userID from 0 to 1891
+	return D[user1][user2]
 
 #print(euclideanDistance(2,4))
 
-def getClusterLabel(user): #put actual userID
+def cosineDistance(user1, user2): #put userID from 0 to 1891
+    return D_cosine[user1][user2]
+
+def getClusterLabel(user): #put userID from 0 to 1891
     for i in range(len(C)):
         if(user in C[i]):
             return i
@@ -106,11 +153,23 @@ def getClusterLabel(user): #put actual userID
 
 #print(getClusterLabel(5))
 
+def getUser(ix): #put userID from 0 to 1891
+    return unique_userID_arr[ix]
+
+#print(getUser(0))
+
+def getArtist(ix):
+    return unique_artistID_arr[ix]
+
+
 num_users = m.shape[0]
 num_artists = m.shape[1]
 #print(num_artists)
+#print(num_users)
 
-def recommend_artists(user):
+#---------------------  userKNN ----------------------------
+
+def recommend_artists(user): #put userID from 0 to 1891
     cluster = getClusterLabel(user)
     cluster_size = C[cluster].size
     scores = [] #score for each artist predicted for that user
@@ -121,7 +180,7 @@ def recommend_artists(user):
             #if(m[C[cluster][p]][k] != 0):
             if(m.iloc[C[cluster][p]-2,k-1] > 0):
                 n = num_common(user,C[cluster][p])
-                d = (n/(n+100))*euclideanDistance(user,C[cluster][p])
+                d = (n/(n+100))*cosineDistance(user,C[cluster][p])
                 s += d
                 num_people += 1
         if(num_people == 0):
@@ -134,9 +193,25 @@ def recommend_artists(user):
     for i in range(0,5):
         print(scores[i][0])
         #rec.append(scores[i][0])
-    
-        
-recommend_artists(5)
+
+print ("Setup complete in ", time.time() - start_time, "time")
+
+
+#---------------------  recommendation ----------------------------
+
+start_time = time.time()
+recommend_artists(0)
+print ("Recommendation complete in ", time.time() - start_time, "time")
+#~10 secs - 1 items
+
+user_artists.plot.scatter(x='userID', y='artistID', s=user_artists['weight'])
+
+for i in range(0,70):
+    print(i)
+    if(m.iloc[2,i] > 0): #corresponds to index 5, columns i+1
+        print(i,m.iloc[2,i])
+
+m.iloc[2,45]
 #
 #if(-3):
 #    print("manish")

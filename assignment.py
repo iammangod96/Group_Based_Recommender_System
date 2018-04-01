@@ -177,21 +177,21 @@ def recommend_artists(user): #put userID from 0 to 1891
         s = 0
         num_people = 0
         for p in range(0,cluster_size):
-            #if(m[C[cluster][p]][k] != 0):
-            if(m.iloc[C[cluster][p]-2,k-1] > 0):
-                n = num_common(user,C[cluster][p])
-                d = (n/(n+100))*cosineDistance(user,C[cluster][p])
-                s += d
-                num_people += 1
+            if(m[ getArtist(k) ][ getUser( C[cluster][p] ) ] > 0):
+                if(user != C[cluster][p]):
+                    n = num_common(user,C[cluster][p])
+                    d = (n/(n+100))*cosineDistance(user,C[cluster][p])
+                    s += d
+                    num_people += 1
         if(num_people == 0):
             score=0
         else:
             score = s/num_people
-        scores.append((k,score))
+        scores.append((getArtist(k),score))
     scores.sort(key=operator.itemgetter(1),reverse = True)
     #rec = []
-    for i in range(0,5):
-        print(scores[i][0])
+    for i in range(0,50):
+        print(scores[i][0]," ,score:",scores[i][1])
         #rec.append(scores[i][0])
 
 print ("Setup complete in ", time.time() - start_time, "time")
@@ -199,19 +199,27 @@ print ("Setup complete in ", time.time() - start_time, "time")
 
 #---------------------  recommendation ----------------------------
 
+req_user = 1124
 start_time = time.time()
-recommend_artists(0)
+recommend_artists(req_user)
 print ("Recommendation complete in ", time.time() - start_time, "time")
 #~10 secs - 1 items
 
-user_artists.plot.scatter(x='userID', y='artistID', s=user_artists['weight'])
 
-for i in range(0,70):
-    print(i)
-    if(m.iloc[2,i] > 0): #corresponds to index 5, columns i+1
-        print(i,m.iloc[2,i])
 
-m.iloc[2,45]
+#---------------------  Evaluation ----------------------------
+
+#find decreasing sorted artist list of user actual
+actual_arr = []
+for i in range(0,num_artists):
+    if(m[ getArtist(i) ][getUser(req_user)] > 0):
+        actual_arr.append((getArtist(i),m[ getArtist(i) ][getUser(req_user)]))
+actual_arr.sort(key=operator.itemgetter(1),reverse = True)
+for i in range(0,50):
+        print(actual_arr[i][0]," ,actual weight:",actual_arr[i][1])
+        
+
+#---------------------  debugging ----------------------------
 #
 #if(-3):
 #    print("manish")

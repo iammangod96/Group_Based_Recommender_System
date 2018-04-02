@@ -76,6 +76,8 @@ def kMedoids(D, k, tmax=100):
 
 #load data
 user_artists = pd.read_csv("G:/BITS/4-2/Information retrieval/my_assignment/last_fm_dataset/user_artists.csv")
+user_friends = pd.read_csv("G:/BITS/4-2/Information retrieval/my_assignment/last_fm_dataset/user_friends.csv")
+
 
 #data profiling
 user_artists.describe()
@@ -124,6 +126,7 @@ for label in C:
 #---------------------  fuctions to be used for userKNN ----------------------------
 
 ua_list = user_artists.groupby('userID')['artistID'].apply(list) #indexing 2 to 2100
+uf_list = user_friends.groupby('userID')['friendID'].apply(list) #indexing 2 to 2100
 
 #ua_list.values[0] #userID starts at 2, so 0->2,1->3 and so on. #<---------- this is wrong
 
@@ -190,7 +193,10 @@ def recommend_artists(user): #put userID from 0 to 1891
                 if(user != C[cluster][p]):
                     n = num_common(user,C[cluster][p])
                     d = (n/(n+100))*cosineDistance(user,C[cluster][p])
-                    s += d
+                    if( getUser( C[cluster][p] ) in uf_list[ getUser(user) ] ):
+                        s += 2*d #choosing this weight requires further research
+                    else:
+                        s+=d
                     num_people += 1
         if(num_people == 0):
             score=0
@@ -210,7 +216,7 @@ print ("Setup complete in ", time.time() - start_time, "time")
 
 #---------------------  recommendation ----------------------------
 
-req_user = 10
+req_user = 73
 start_time = time.time()
 recommended_artists_arr = recommend_artists(req_user) 
 recommend_artists_print(recommended_artists_arr)

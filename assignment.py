@@ -77,6 +77,7 @@ def kMedoids(D, k, tmax=100):
 #load data
 user_artists = pd.read_csv("G:/BITS/4-2/Information retrieval/my_assignment/last_fm_dataset/user_artists.csv")
 user_friends = pd.read_csv("G:/BITS/4-2/Information retrieval/my_assignment/last_fm_dataset/user_friends.csv")
+artists = pd.read_csv("G:/BITS/4-2/Information retrieval/my_assignment/last_fm_dataset/artists.csv")
 
 
 #data profiling
@@ -164,6 +165,10 @@ def getUser(ix): #put userID from 0 to 1891
 def getArtist(ix):
     return unique_artistID_arr[ix]
 
+def getArtistID(artist):
+    x = unique_artistID_arr.tolist()
+    return x.index(artist)
+
 
 num_users = m.shape[0]
 num_artists = m.shape[1]
@@ -209,6 +214,7 @@ def recommend_artists(user): #put userID from 0 to 1891
 def recommend_artists_print(scores):
     for i in range(0,50):
         print(scores[i][0]," ,score:",scores[i][1])
+        #print(artists.name[ getArtistID( scores[i][0] ) ]," ,score:",scores[i][1]) cannot use this since artists dataset not complete; has only 14036 artists compared to 17632 in other datasets
         
 
 print ("Setup complete in ", time.time() - start_time, "time")
@@ -216,7 +222,7 @@ print ("Setup complete in ", time.time() - start_time, "time")
 
 #---------------------  recommendation ----------------------------
 
-req_user = 73
+req_user = 269
 start_time = time.time()
 recommended_artists_arr = recommend_artists(req_user) 
 recommend_artists_print(recommended_artists_arr)

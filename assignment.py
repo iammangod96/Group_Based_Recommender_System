@@ -211,10 +211,14 @@ def recommend_artists(user): #put userID from 0 to 1891
     scores.sort(key=operator.itemgetter(1),reverse = True)
     return scores
 
+    
+artistID_in_artists = artists.id.unique() #to be ussed in recommend_artists_print function
 def recommend_artists_print(scores):
-    for i in range(0,50):
-        print(scores[i][0]," ,score:",scores[i][1])
-        #print(artists.name[ getArtistID( scores[i][0] ) ]," ,score:",scores[i][1]) cannot use this since artists dataset not complete; has only 14036 artists compared to 17632 in other datasets
+    for i in range(0,30):
+        if(scores[i][0] in artistID_in_artists):
+            print(artists.name[ getArtistID( scores[i][0] ) ]," ,score:",scores[i][1])
+        else:
+            print(scores[i][0]," ,score:",scores[i][1])
         
 
 print ("Setup complete in ", time.time() - start_time, "time")
@@ -222,7 +226,7 @@ print ("Setup complete in ", time.time() - start_time, "time")
 
 #---------------------  recommendation ----------------------------
 
-req_user = 269
+req_user = 108
 start_time = time.time()
 recommended_artists_arr = recommend_artists(req_user) 
 recommend_artists_print(recommended_artists_arr)
